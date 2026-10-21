@@ -424,22 +424,49 @@
     });
 
     function showSession(session) {
-      if (session && session.user) {
-        authMessage.textContent = "Signed in as " + session.user.email;
-        logoutBtn.hidden = false;
-        signupBtn.hidden = true;
-      } else {
-        logoutBtn.hidden = true;
-        signupBtn.hidden = false;
-      }
-    }
+  if (session && session.user) {
+    authMessage.textContent = "Signed in as " + session.user.email;
+    logoutBtn.hidden = false;
+    signupBtn.hidden = true;
+    loadPlayerProfile(session.user);
+  } else {
+    logoutBtn.hidden = true;
+    signupBtn.hidden = false;
+    document.getElementById("coins").textContent = "1,000";
+    document.getElementById("played").textContent = "0";
+    document.getElementById("wins").textContent = "0";
+    document.getElementById("losses").textContent = "0";
+  }
+}
+    
+async function loadPlayerProfile(user) {
+  if (!supabaseClient || !user) return;
 
-    logoutBtn.addEventListener("click", async () => {
-      if (!supabaseClient) return;
-      const { error } = await supabaseClient.auth.signOut();
-      authMessage.textContent = error ? error.message : "You have signed out.";
-      showSession(null);
-    });
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("demo_mcoins, matches_played, matches_won")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    authMessage.textContent =
+      "Signed in, but profile loading failed: " + error.message;
+    return;
+  }
+
+  document.getElementById("coins").textContent =
+    Number(data.demo_mcoins).toLocaleString();
+
+  document.getElementById("played").textContent =
+    data.matches_played;
+
+  document.getElementById("wins").textContent =
+    data.matches_won;
+
+  document.getElementById("losses").textContent =
+    Math.max(0, data.matches_played - data.matches_won);
+}
+
 
     async function checkSession() {
       if (!supabaseClient) return;
