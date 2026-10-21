@@ -1,0 +1,461 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCoins Arena | Play. Compete. Win.</title>
+  <meta name="theme-color" content="#0b0d16">
+  <style>
+    :root {
+      --bg: #0b0d16;
+      --panel: #141827;
+      --line: #292f45;
+      --text: #f5f7ff;
+      --muted: #9ba4bd;
+      --purple: #8b5cf6;
+      --cyan: #36e0d0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at top, #20203c 0%, var(--bg) 55%);
+      color: var(--text);
+      font-family: Inter, system-ui, Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .wrap { width: min(1100px, 92%); margin: auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .logo { font-size: 23px; font-weight: 900; letter-spacing: -1px; }
+    .logo span { color: var(--cyan); }
+    .tag { color: var(--muted); font-size: 12px; margin-top: 5px; }
+
+    .pill {
+      border: 1px solid #34415a;
+      border-radius: 30px;
+      padding: 9px 13px;
+      color: var(--cyan);
+      background: #141d2b;
+      font-size: 12px;
+    }
+
+    .hero { padding: 34px 0 22px; }
+    .eyebrow {
+      color: var(--cyan);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 2px;
+      font-weight: 800;
+    }
+
+    h1 { font-size: clamp(30px, 5vw, 48px); margin: 10px 0; letter-spacing: -2px; }
+    .sub { color: var(--muted); line-height: 1.7; max-width: 600px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .panel {
+      background: linear-gradient(145deg, #181d30, #111522);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .stat-label { color: var(--muted); font-size: 12px; }
+    .stat-value { font-size: 25px; font-weight: 850; margin-top: 9px; }
+    .coin { color: #ffd36b; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+      gap: 18px;
+      padding-bottom: 30px;
+    }
+
+    h2 { font-size: 19px; margin: 0 0 8px; }
+    .hint { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    .modes { display: flex; gap: 8px; margin: 18px 0; flex-wrap: wrap; }
+    .btn {
+      border: 1px solid var(--line);
+      background: #1b2134;
+      color: var(--text);
+      border-radius: 11px;
+      padding: 11px 15px;
+      font-weight: 700;
+    }
+
+    .btn.primary {
+      border: 0;
+      color: #fff;
+      background: linear-gradient(100deg, #7650ed, #a34ef1);
+    }
+
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 390px;
+      margin: 18px auto;
+    }
+
+    .cell {
+      aspect-ratio: 1;
+      border-radius: 15px;
+      border: 1px solid #343b57;
+      background: #1b2033;
+      color: var(--cyan);
+      font-size: clamp(32px, 7vw, 52px);
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      transition: .15s;
+    }
+
+    .cell:hover:enabled { background: #292746; border-color: var(--purple); }
+    .cell.o { color: #ff83c6; }
+    .status { text-align: center; min-height: 24px; color: var(--cyan); font-weight: 700; }
+
+    .auth-form { display: grid; gap: 11px; margin-top: 16px; }
+    .field {
+      width: 100%;
+      padding: 12px 13px;
+      background: #0d1120;
+      border: 1px solid #30374e;
+      border-radius: 10px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .field:focus { border-color: var(--purple); }
+    .message { font-size: 12px; line-height: 1.6; color: var(--cyan); overflow-wrap: anywhere; }
+    .section { margin-top: 18px; }
+    .notice {
+      border: 1px solid #62502d;
+      background: #292215;
+      color: #f8d995;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 16px;
+    }
+
+    footer { padding: 20px 0 35px; color: var(--muted); font-size: 12px; text-align: center; }
+
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 1fr; }
+      .stats { gap: 8px; }
+      .panel { padding: 15px; }
+      .stat-value { font-size: 20px; }
+      header { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="logo">MCOINS <span>ARENA</span></div>
+        <div class="tag">Your next match starts here.</div>
+      </div>
+      <div class="pill">● DEMO MODE</div>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Welcome to the arena</div>
+      <h1>Play smart. <span style="color:var(--cyan)">Climb higher.</span></h1>
+      <p class="sub">Challenge the AI, sharpen your strategy, and prepare to compete with friends. Every MCoin in this demo is virtual and has no cash value.</p>
+    </section>
+
+    <section class="stats">
+      <div class="panel">
+        <div class="stat-label">DEMO BALANCE</div>
+        <div class="stat-value coin">🪙 <span id="coins">1,000</span></div>
+      </div>
+      <div class="panel">
+        <div class="stat-label">MATCHES PLAYED</div>
+        <div class="stat-value" id="played">0</div>
+      </div>
+      <div class="panel">
+        <div class="stat-label">YOUR RECORD</div>
+        <div class="stat-value"><span id="wins">0</span> W / <span id="losses">0</span> L</div>
+      </div>
+    </section>
+
+    <main class="layout">
+      <section class="panel">
+        <h2>⚔️ Tic-Tac-Toe Arena</h2>
+        <p class="hint">You're X. The AI is O. Outsmart it to win the round.</p>
+
+        <div class="modes">
+          <button class="btn primary" id="aiMode">🤖 Play AI</button>
+          <button class="btn" id="reset">↻ New round</button>
+        </div>
+
+        <div class="status" id="status" aria-live="polite">Your move. Choose a square!</div>
+        <div class="board" id="board" aria-label="Tic-Tac-Toe board"></div>
+        <p class="hint" style="text-align:center">Practice matches do not spend or award real money.</p>
+
+        <div class="section">
+          <h2>👥 Friend Matches</h2>
+          <p class="hint">Online friend matches are coming in the next setup step. We'll connect them to your new Supabase database.</p>
+          <button class="btn" disabled>Online matches coming soon</button>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2>🔐 Player Account</h2>
+        <p class="hint">Create an account or sign in to test your new Supabase connection.</p>
+
+        <form id="authForm" class="auth-form">
+          <input class="field" id="email" type="email" placeholder="Email address" autocomplete="email" required>
+          <input class="field" id="password" type="password" placeholder="Password (at least 6 characters)" autocomplete="current-password" minlength="6" required>
+          <button class="btn primary" type="button" id="signup">Create account</button>
+          <button class="btn" type="submit">Sign in</button>
+        </form>
+
+        <div class="section">
+          <button class="btn" id="logout" hidden>Sign out</button>
+          <p class="message" id="authMessage" aria-live="polite">Supabase connection will be configured next.</p>
+        </div>
+
+        <div class="notice">
+          DEMO ONLY: MCoins cannot be purchased, transferred, withdrawn, or redeemed. No real-money betting or payouts are enabled.
+        </div>
+      </aside>
+    </main>
+
+    <footer>© 2026 MCoins Arena · Play fair. Play for fun.</footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // We'll add your Supabase Project URL and publishable key in the next step.
+    const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
+    const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+
+    let supabaseClient = null;
+    if (
+      window.supabase &&
+      SUPABASE_URL.startsWith("https://") &&
+      !SUPABASE_URL.includes("PASTE_") &&
+      SUPABASE_KEY &&
+      !SUPABASE_KEY.includes("PASTE_")
+    ) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+
+    const boardEl = document.getElementById("board");
+    const statusEl = document.getElementById("status");
+    const authMessage = document.getElementById("authMessage");
+    const signupBtn = document.getElementById("signup");
+    const logoutBtn = document.getElementById("logout");
+
+    let board = Array(9).fill("");
+    let gameOver = false;
+    let busy = false;
+    let played = 0, wins = 0, losses = 0;
+
+    function renderBoard() {
+      boardEl.innerHTML = "";
+      board.forEach((value, index) => {
+        const button = document.createElement("button");
+        button.className = "cell" + (value === "O" ? " o" : "");
+        button.textContent = value;
+        button.setAttribute("aria-label", "Square " + (index + 1) + (value ? ": " + value : ""));
+        button.disabled = Boolean(value) || gameOver || busy;
+        button.addEventListener("click", () => playerMove(index));
+        boardEl.appendChild(button);
+      });
+    }
+
+    function winner(b, mark) {
+      const lines = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      return lines.some(line => line.every(i => b[i] === mark));
+    }
+
+    function finishRound() {
+      if (winner(board, "X")) {
+        gameOver = true;
+        played++; wins++;
+        statusEl.textContent = "🏆 You win! Start a new round to play again.";
+      } else if (winner(board, "O")) {
+        gameOver = true;
+        played++; losses++;
+        statusEl.textContent = "The AI wins this round. Try another strategy!";
+      } else if (board.every(Boolean)) {
+        gameOver = true;
+        played++;
+        statusEl.textContent = "It's a draw! Nobody takes the crown.";
+      } else {
+        return false;
+      }
+
+      document.getElementById("played").textContent = played;
+      document.getElementById("wins").textContent = wins;
+      document.getElementById("losses").textContent = losses;
+      renderBoard();
+      return true;
+    }
+
+    function playerMove(index) {
+      if (gameOver || busy || board[index]) return;
+      board[index] = "X";
+      renderBoard();
+      if (finishRound()) return;
+
+      busy = true;
+      statusEl.textContent = "AI is thinking...";
+      renderBoard();
+
+      setTimeout(() => {
+        const move = findBestMove();
+        if (move !== -1) board[move] = "O";
+        busy = false;
+        renderBoard();
+        if (!finishRound()) statusEl.textContent = "Your move. Choose a square!";
+      }, 350);
+    }
+
+    function findBestMove() {
+      // Take a winning move, block a winning move, then prefer center/corners.
+      for (const mark of ["O", "X"]) {
+        for (let i = 0; i < 9; i++) {
+          if (!board[i]) {
+            board[i] = mark;
+            const winsNow = winner(board, mark);
+            board[i] = "";
+            if (winsNow) return i;
+          }
+        }
+      }
+
+      if (!board[4]) return 4;
+      const corners = [0, 2, 6, 8].filter(i => !board[i]);
+      if (corners.length) return corners[Math.floor(Math.random() * corners.length)];
+      const empty = board.map((v, i) => v ? -1 : i).filter(i => i >= 0);
+      return empty.length ? empty[Math.floor(Math.random() * empty.length)] : -1;
+    }
+
+    function newRound() {
+      board = Array(9).fill("");
+      gameOver = false;
+      busy = false;
+      statusEl.textContent = "Your move. Choose a square!";
+      renderBoard();
+    }
+
+    document.getElementById("reset").addEventListener("click", newRound);
+    document.getElementById("aiMode").addEventListener("click", newRound);
+
+    signupBtn.addEventListener("click", async () => {
+      if (!supabaseClient) {
+        authMessage.textContent = "Supabase is not connected yet. We'll add your credentials next.";
+        return;
+      }
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      if (!email || password.length < 6) {
+        authMessage.textContent = "Enter a valid email and a password of at least 6 characters.";
+        return;
+      }
+
+      signupBtn.disabled = true;
+      authMessage.textContent = "Creating your account...";
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      signupBtn.disabled = false;
+
+      if (error) {
+        authMessage.textContent = "Sign-up error: " + error.message;
+      } else if (data.session) {
+        authMessage.textContent = "Account created and signed in successfully!";
+        showSession(data.session);
+      } else {
+        authMessage.textContent = "Account request submitted. Check your email to confirm registration, then sign in.";
+      }
+    });
+
+    document.getElementById("authForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!supabaseClient) {
+        authMessage.textContent = "Supabase is not connected yet. We'll add your credentials next.";
+        return;
+      }
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      authMessage.textContent = "Signing in...";
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        authMessage.textContent = "Sign-in error: " + error.message;
+      } else {
+        authMessage.textContent = "Signed in successfully!";
+        showSession(data.session);
+      }
+    });
+
+    function showSession(session) {
+      if (session && session.user) {
+        authMessage.textContent = "Signed in as " + session.user.email;
+        logoutBtn.hidden = false;
+        signupBtn.hidden = true;
+      } else {
+        logoutBtn.hidden = true;
+        signupBtn.hidden = false;
+      }
+    }
+
+    logoutBtn.addEventListener("click", async () => {
+      if (!supabaseClient) return;
+      const { error } = await supabaseClient.auth.signOut();
+      authMessage.textContent = error ? error.message : "You have signed out.";
+      showSession(null);
+    });
+
+    async function checkSession() {
+      if (!supabaseClient) return;
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) authMessage.textContent = error.message;
+      showSession(data.session);
+    }
+
+    if (!supabaseClient) {
+      authMessage.textContent = "Next step: add your Supabase URL and publishable key.";
+    } else {
+      checkSession();
+      supabaseClient.auth.onAuthStateChange((_event, session) => showSession(session));
+    }
+
+    renderBoard();
+  </script>
+</body>
+</html>
