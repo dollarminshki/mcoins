@@ -301,29 +301,62 @@
       return lines.some(line => line.every(i => b[i] === mark));
     }
 
-    function finishRound() {
-      if (winner(board, "X")) {
-        gameOver = true;
-        played++; wins++;
-        statusEl.textContent = "🏆 You win! Start a new round to play again.";
-      } else if (winner(board, "O")) {
-        gameOver = true;
-        played++; losses++;
-        statusEl.textContent = "The AI wins this round. Try another strategy!";
-      } else if (board.every(Boolean)) {
-        gameOver = true;
-        played++;
-        statusEl.textContent = "It's a draw! Nobody takes the crown.";
-      } else {
-        return false;
-      }
+    
+async function finishRound() {
+  let result;
 
-      document.getElementById("played").textContent = played;
-      document.getElementById("wins").textContent = wins;
-      document.getElementById("losses").textContent = losses;
-      renderBoard();
-      return true;
+  if (winner(board, "X")) {
+    gameOver = true;
+    played++;
+    wins++;
+    result = "win";
+    statusEl.textContent =
+      "🏆 You win! Start a new round to play again.";
+  } else if (winner(board, "O")) {
+    gameOver = true;
+    played++;
+    losses++;
+    result = "loss";
+    statusEl.textContent =
+      "The AI wins this round. Try another strategy!";
+  } else if (board.every(Boolean)) {
+    gameOver = true;
+    played++;
+    result = "draw";
+    statusEl.textContent =
+      "It's a draw! Nobody takes the crown.";
+  } else {
+    return false;
+  }
+
+  document.getElementById("played").textContent = played;
+  document.getElementById("wins").textContent = wins;
+  document.getElementById("losses").textContent = losses;
+
+  renderBoard();
+
+  if (supabaseClient) {
+    const { data: sessionData } =
+      await supabaseClient.auth.getSession();
+
+    if (sessionData.session) {
+      const { error } = await supabaseClient.rpc(
+        "record_demo_match",
+        { p_result: result }
+      );
+
+      if (error) {
+        statusEl.textContent +=
+          " Match save failed: " + error.message;
+      } else {
+        await loadPlayerProfile(sessionData.session.user);
+      }
     }
+  }
+
+  return true;
+}
+
 
     function playerMove(index) {
       if (gameOver || busy || board[index]) return;
