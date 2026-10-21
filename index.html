@@ -358,24 +358,35 @@ async function finishRound() {
 }
 
 
-    function playerMove(index) {
-      if (gameOver || busy || board[index]) return;
-      board[index] = "X";
-      renderBoard();
-      if (finishRound()) return;
+    
+async function playerMove(index) {
+  if (gameOver || busy || board[index]) return;
 
-      busy = true;
-      statusEl.textContent = "AI is thinking...";
-      renderBoard();
+  board[index] = "X";
+  renderBoard();
 
-      setTimeout(() => {
-        const move = findBestMove();
-        if (move !== -1) board[move] = "O";
-        busy = false;
-        renderBoard();
-        if (!finishRound()) statusEl.textContent = "Your move. Choose a square!";
-      }, 350);
+  if (await finishRound()) return;
+
+  busy = true;
+  statusEl.textContent = "AI is thinking...";
+  renderBoard();
+
+  setTimeout(async () => {
+    const move = findBestMove();
+
+    if (move !== -1) {
+      board[move] = "O";
     }
+
+    busy = false;
+    renderBoard();
+
+    if (!(await finishRound())) {
+      statusEl.textContent = "Your move. Choose a square!";
+    }
+  }, 350);
+}
+
 
     function findBestMove() {
       // Take a winning move, block a winning move, then prefer center/corners.
